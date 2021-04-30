@@ -1,0 +1,48 @@
+ class Wander3D extends Face3D:
+2// The radius and offset of the wander circle.
+3 wanderOffset: Vector
+4 wanderRadiusXZ: f64
+5 wanderRadiusY: f64
+6
+7// The maximum rate at which the wander orientation can change.
+8// Should be strictly less than 1/sqrt(3) = 0.577 to avoid the
+9// chance of ending up with a zero length wanderTarget.
+10 wanderRate: f64
+11
+12// The current offset of the wander target.
+13 wanderTarget: Vector
+14
+15// The maximum acceleration of the character, though this is a 3D
+16// vector, it typically has only a non-zero z component.
+17 maxAcceleration: Vector
+18
+19// ... Other data is derived from the superclass ...
+20
+21 fn getSteering() -> SteeringOutput3D:
+22// 1. Calculate the target to delegate to face
+23// Update the wander direction.
+24 wanderTarget.x += randomBinomial() * wanderRate
+25 wanderTarget.y += randomBinomial() * wanderRate
+26 wanderTarget.z += randomBinomial() * wanderRate
+27 wanderTarget.normalize()
+28
+29// Calculate the transformed target direction
+30// and scale it.
+31 target = wanderTarget * character.orientation
+32 target.x *= wanderRadiusXZ
+33 target.y *= wanderRadiusY
+34 target.z *= wanderRadiusXZ
+35
+36// Offset by the center of the wander circle.
+37 target += character.position +
+38 wanderOffset * character.orientation
+39
+40// 2. Delegate it to face.
+41 result = Face3D.getSteering(target)
+42
+43// 3. Now set the linear acceleration to be at full
+# acceleration in the direction of the orientation.
+45 result.linear = maxAcceleration * character.orientation
+46
+47// Return it.
+48 return result

@@ -1,0 +1,40 @@
+
+1 class KinematicArrive:
+2 character: Static
+3 target: Static54 Chapter 3 Movement
+4
+5 maxSpeed: f64
+6
+7// The satisfaction radius.
+8 radius: f64
+9
+10// The time to target constant.
+11 timeToTarget: f64 = 0.25
+12
+13 fn getSteering() -> KinematicSteeringOutput:
+14 result = new KinematicSteeringOutput()
+15
+16// Get the direction to the target.
+17 result.velocity = target.position - character.position
+18
+19// Check if we’re within radius.
+20 if result.velocity.length() < radius:
+21// Request no steering.
+22 return null
+23
+24// We need to move to our target, we’d like to
+25// get there in timeToTarget seconds.
+26 result.velocity /= timeToTarget
+27
+28// If this is too fast, clip it to the max speed.
+29 if result.velocity.length() > maxSpeed:
+30 result.velocity.normalize()
+31 result.velocity *= maxSpeed
+32
+33// Face in the direction we want to move.
+34 character.orientation = newOrientation(
+35 character.orientation,
+36 result.velocity)
+37
+38 result.rotation = 0
+39 return result

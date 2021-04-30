@@ -1,0 +1,7 @@
+ fn orientationInDirection(angle, axis):
+2 sinAngle = sin(angle / 2)
+3 return new Quaternion(
+4 cos(angle / 2),
+5 sinAngle * axis.x,3.9 Exercises 191
+6 sinAngle * axis.y,
+7 sinAngle * axis.z)

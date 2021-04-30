@@ -1,0 +1,30 @@
+ fn getFakeOrientation(kinematic: Kinematic3D,
+2 maxSpeed: f64,
+3 rollScale: f64):
+4 current: Quaternion = kinematic.orientation
+5
+6// Find the blend factors.
+7 speed = kinematic.velocity.length()
+8 if speed == 0:
+9// No change if we’re stationary.
+10 return current
+11 else if speed < maxSpeed:
+12// Partly use the unchanged orientation.
+13 fakeBlend = speed / maxSpeed
+14 else:
+15// We’re completely faked.
+16 fakeBlend = 1.0
+17 kinematicBlend = 1.0 - fakeBlend
+18
+19// Find the faked axis orientations.
+20 yaw = current.as2DOrientation()
+21 pitch = asin(kinematic.velocity.y / speed)
+22 roll = atan2(kinematic.rotation, rollScale)
+23
+24// Combine them as quaternions.
+25 faked = orientationInDirection(roll, Vector(0, 0, 1))
+26 faked *= orientationInDirection(pitch, Vector(1, 0, 0))
+27 faked *= orientationInDirection(yaw, Vector(0, 1, 0))
+28
+29// Blend result.
+30 return current * (1.0 - fakeBlend) + faked * fakeBlend

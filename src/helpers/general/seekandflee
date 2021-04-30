@@ -1,0 +1,19 @@
+
+1 class Kinematic:
+2// ... Member data as before ...
+3
+4 fn update(steering: SteeringOutput,
+5 maxSpeed: f64,
+6 time: f64):
+7// Update the position and orientation.
+8 position += velocity * time
+9 orientation += rotation * time
+10
+11// and the velocity and rotation.
+12 velocity += steering.linear * time
+13 rotation += steering.angular * time
+14
+15// Check for speeding and clip.
+16 if velocity.length() > maxSpeed:
+17 velocity.normalize()
+18 velocity *= maxSpeed

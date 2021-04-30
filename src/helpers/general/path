@@ -1,0 +1,3 @@
+ class Path:
+2 fn getParam(position: Vector, lastParam: f64) -> f64
+3 fn getPosition(param: f64) -> Vector

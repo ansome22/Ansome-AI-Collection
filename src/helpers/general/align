@@ -1,0 +1,55 @@
+
+1 class Align:
+2 character: Kinematic
+3 target: Kinematic
+4
+5 maxAngularAcceleration: f64
+6 maxRotation: f64
+7
+8// The radius for arriving at the target.
+9 targetRadius: f64
+10
+11// The radius for beginning to slow down.
+12 slowRadius: f64
+13
+14// The time over which to achieve target speed.
+15 timeToTarget: f64 = 0.1
+16
+17 fn getSteering() -> SteeringOutput:
+18 result = new SteeringOutput()
+19
+20// Get the naive direction to the target.
+21 rotation = target.orientation - character.orientation
+22
+23// Map the result to the (-pi, pi) interval.
+24 rotation = mapToRange(rotation)
+25 rotationSize = abs(rotation)
+26
+27// Check if we are there, return no steering.
+28 if rotationSize < targetRadius:
+29 return null
+30
+31// If we are outside the slowRadius, then use maximum rotation.
+32 if rotationSize > slowRadius:66 Chapter 3 Movement
+33 targetRotation = maxRotation
+34// Otherwise calculate a scaled rotation.
+35 else:
+36 targetRotation =
+37 maxRotation * rotationSize / slowRadius
+38
+39// The final target rotation combines speed (already in the
+40// variable) and direction.
+41 targetRotation *= rotation / rotationSize
+42
+43// Acceleration tries to get to the target rotation.
+44 result.angular = targetRotation - character.rotation
+45 result.angular /= timeToTarget
+46
+47// Check if the acceleration is too great.
+48 angularAcceleration = abs(result.angular)
+49 if angularAcceleration > maxAngularAcceleration:
+50 result.angular /= angularAcceleration
+51 result.angular *= maxAngularAcceleration
+52
+53 result.linear = 0
+54 return result

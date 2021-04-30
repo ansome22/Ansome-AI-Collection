@@ -1,0 +1,87 @@
+ fn doDepthFirst(worldModel: WorldModel,
+2 goal: Goal,
+3 heuristic: Heuristic,
+4 transpositionTable: TranspositionTable,
+5 maxDepth: int,
+6 cutoff: f64) -> (f64, Action):
+7
+8// Create storage for world models at each depth, and
+9// actions that correspond to them, with their cost.
+10 models = new WorldModel[maxDepth+1]
+11 actions = new Action[maxDepth]
+12 costs = new f64[maxDepth]
+13
+14// Set up the initial data.
+15 models[0] = worldModel
+16 currentDepth: int = 0
+17
+18// Keep track of the smallest pruned cutoff.
+19 smallestCutoff: f64 = infinity426 Chapter 5 Decision Making
+20
+21// Iterate over all actions at depth zero.
+22 while currentDepth >= 0:
+23// Check if we have a goal.
+24 if goal.isFulfilled(models[currentDepth]):
+25// We can return from the depth first search
+26// immediately with the result.
+27 return 0, actions[0]
+28
+29// Check if we’re at maximum depth.
+30 if currentDepth >= maxDepth:
+31// We’re done at this depth, so drop back.
+32 currentDepth -= 1
+33
+34// Jump to the next iteration.
+35 continue
+36
+37// Calculate the total cost of the plan, we’ll need it
+38// in all other cases.
+39 cost = heuristic.estimate(models[currentDepth]) +
+40 costs[currentDepth]
+41
+42// Check if we need to prune based on the cost.
+43 if cost > cutoff:
+44// Check if this is the lowest prune.
+45 if cost < smallestCutoff:
+46 smallestCutoff = cost
+47
+48// We’re done at this depth, so drop back.
+49 currentDepth -= 1
+50
+51// Jump to the next iteration.
+52 continue
+53
+54// Otherwise, we need to try the next action.
+55 nextAction = models[currentDepth].nextAction()
+56
+57 if nextAction:
+58// We have an action to apply, copy the current model.
+59 models[currentDepth+1] = models[currentDepth]
+60
+61// and apply the action to the copy.
+62 actions[currentDepth] = nextAction
+63 models[currentDepth+1].applyAction(nextAction)
+64 costs[currentDepth+1] = costs[currentDepth] +
+65 nextAction.getCost()
+665.7 Goal-Oriented Behavior 427
+67// Check if we’ve already seen this state.
+68 if not transitionTable.has(models[currentDepth + 1]):
+69// Process the new state on the next iteration.
+70 currentDepth += 1
+71
+72// Otherwise, we don’t bother recursing, so on
+73// the next iteration of the while loop, we’ll
+74// move on to the next action.
+75
+76// Set the model in the transition table every time
+77// (in case the depth has changed).
+78 transitionTable.add(models[currentDepth + 1],
+79 currentDepth)
+80
+81// Otherwise we have no action to try.
+82 else:
+83// Drop back to the next highest level.
+84 currentDepth -= 1
+85
+86// We’ve finished iterating, and didn’t find an action.
+87 return smallestCutoff, null

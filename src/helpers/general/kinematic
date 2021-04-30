@@ -1,0 +1,5 @@
+class Kinematic:
+ position: Vector
+ orientation: f64
+ velocity: Vector
+ rotation: f64

@@ -1,0 +1,67 @@
+ class Face3D extends Align3D:
+2// The base orientation used to calculate facing.
+3 baseOrientation: Quaternion
+4
+5// Overridden target.
+6 target: Kinematic3D
+7
+8// ... Other data is derived from the superclass ...
+9
+10// Calculate an orientation to face along a given vector.
+11 fn calculateOrientation(vector):
+12// Get the base vector by transforming the z-axis by base
+13// orientation (this only needs to be done once for each
+14// base orientation, so could be cached between calls).
+15 zVector = new Vector(0, 0, 1)
+16 baseZVector = zVector * baseOrientation
+17
+18// If we’re done (or the opposite) use the base quaternion.
+19 if baseZVector == vector:
+20 return baseOrientation
+21 elif baseZVector == -vector:
+22 return -baseOrientation
+23
+24// Otherwise find the minimum rotation to the target.
+25 axis = crossProduct(baseZVector, vector)
+26 angle = asin(axis.length())
+27 axis.normalize()
+28
+29// Pack these into a quaternion and return it.
+30 sinAngle = sin(angle / 2)
+31 return new Quaternion(
+32 cos(angle / 2),
+33 sinAngle * axis.x,
+34 sinAngle * axis.y,
+35 sinAngle * axis.z)
+36
+37// Implemented as it was in Pursue.
+38 fn getSteering() -> SteeringOutput3D:
+39// 1. Calculate the target to delegate to align
+40// Work out the direction to target.
+41 direction = target.position - character.position
+42
+43// Check for a zero direction, and make no change if so.
+44 if direction.length() == 0:
+45 return null
+46184 Chapter 3 Movement
+47// 2. Delegate to align.
+48 Align3D.target = explicitTarget
+49 Align3D.target.orientation = calculateOrientation(direction)
+50 return Align3D.getSteering()
+
+
+# Transform the vector by the given quaternion.
+2 fn transform(vector, orientation):
+3// Convert the vector into a quaternion.
+4 vectorAsQ = new Quaternion(0, vector.x, vector.y, vector.z)
+5
+6// Transform it.
+7 vectorAsQ = orientation * vectorAsQ * (-orientation)
+8
+9// Unpick it into the resulting vector.
+10 return new Vector(vectorAsQ.i, vectorAsQ.j, vectorAsQ.k)
+
+
+// Work out the direction to target.
+# 2 direction: Vector = character.velocity
+# 3 direction.normalize()

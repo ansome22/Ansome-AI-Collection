@@ -1,0 +1,3 @@
+ class JumpPoint:
+2 takeoffLocation: Vector
+3 landingLocation: Vector

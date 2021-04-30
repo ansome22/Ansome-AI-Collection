@@ -1,0 +1,3 @@
+Goal: Eat = 4 Goal: Bathroom = 3
+Action: Drink-Soda (Eat − 2; Bathroom + 3)
+Action: Visit-Bathroom (Bathroom − 4)

@@ -1,0 +1,3 @@
+ class Character:
+2// Set the steering target of the character.
+3 fn setTarget(static: Static)

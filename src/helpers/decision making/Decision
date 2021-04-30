@@ -1,0 +1,15 @@
+ class Decision extends DecisionTreeNode:
+2 trueNode: DecisionTreeNode
+3 falseNode: DecisionTreeNode
+4
+5// Defined in subclasses, with the appropriate type.
+6 fn testValue() -> any
+7
+8// Perform the test.
+9 fn getBranch() -> DecisionTreeNode
+10
+11// Recursively walk through the tree.
+ fn makeDecision() -> DecisionTreeNode:
+3// Make the decision and recurse based on the result.
+4 branch: DecisionTreeNode = getBranch()
+5 return branch.makeDecision()

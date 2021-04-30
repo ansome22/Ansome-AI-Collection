@@ -1,0 +1,61 @@
+
+1 fn refineTargeting(start: Vector,
+2 end: Vector,
+3 muzzleV: f64,
+4 gravity: Vector,
+5 margin: f64) -> Vector:
+6
+7// Calculate a firing solution based on a firing angle.
+8 fn checkAngle(angle):
+9 deltaPosition: Vector = target - source
+10 direction = convertToDirection(deltaPosition, angle)
+11 distance = distanceToTarget(direction, source, target, muzzleV)
+12 return direction, distance
+13
+14// Take an initial guess using the dragless firing solution.
+15 direction: Vector = calculateFiringSolution(
+16 source, target, muzzleVelocity, gravity)
+17
+18// Check if this is good enough.
+19 distance = distanceToTarget(direction, source, target, muzzleV)
+20 if -margin < distance < margin:
+21 return direction
+22
+23// Otherwise we will binary search, but we must ensure our minBound
+24// undersoots and our maxBound overshoots.
+25 angle: f64 = asin(direction.y / direction.length())
+26 if distance > 0:
+27// We’ve found a maximum bound. Use the shortest possible shot3.5 Predicting Physics 131
+28// (shooting straight down) as the minimum bound.
+29 maxBound = angle
+30 minBound = - pi / 2
+31 direction, distance = checkAngle(minBound)
+32 if -margin < distance < margin:
+33 return direction
+34
+35// Otherwise we need to check we can find a maximum bound: maximum
+36// distance is achieved when we fire at 45 degrees = pi / 4.
+37 else:
+38 minBound = angle
+39 maxBound = pi / 4
+40 direction, distance = checkAngle(maxBound)
+41 if -margin < distance < margin:
+42 return direction
+43
+44// Check if our longest shot can’t make it.
+45 if distance < 0:
+46 return null
+47
+48// Now we have a minimum and maximum bound, so binary search.
+49 distance = infinity
+50 while abs(distance) >= margin:
+51 angle = (maxBound - minBound) / 2
+52 direction, distance = checkAngle(angle)
+53
+54// Change the appropriate bound.
+55 if distance < 0:
+56 minBound = angle
+57 else:
+58 maxBound = angle
+59
+60 return direction

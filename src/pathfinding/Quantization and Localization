@@ -1,0 +1,9 @@
+We can determine which tile any point in the world is within, and this is often a fast process.
+In the case of a square grid, we can simply use a character’s x and z coordinates to determine
+the square it is contained in. For example:
+1 tileX: int = floor(x / tileSize)
+2 tileZ: int = floor(z / tileSize)
+where floor is a function that returns the highest valued integer less than or equal to its
+argument, and tileX and tileZ identify the tile within the regular grid of tiles.
+Similarly, for localization we can use a representative point in the tile (often the center of
+the tile) to convert a node back into a game location.

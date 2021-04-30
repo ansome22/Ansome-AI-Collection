@@ -1,0 +1,25 @@
+
+# The face behavior makes a character look at its target. It delegates to the align behavior to
+# perform the rotation but calculates the target orientation first.
+
+
+1 class Face extends Align:
+2// Overrides the Align.target member.
+3 target: Kinematic
+4
+5// ... Other data is derived from the superclass ...
+6
+7// Implemented as it was in Pursue.
+8 fn getSteering() -> SteeringOutput:
+9// 1. Calculate the target to delegate to align
+10// Work out the direction to target.
+11 direction = target.position - character.position
+12
+13// Check for a zero direction, and make no change if so.
+14 if direction.length() == 0:
+15 return target
+16
+17// 2. Delegate to align.
+18 Align.target = explicitTarget
+19 Align.target.orientation = atan2(-direction.x, direction.z)
+20 return Align.getSteering()

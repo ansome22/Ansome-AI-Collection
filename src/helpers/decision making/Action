@@ -1,0 +1,3 @@
+ class Action extends DecisionTreeNode:
+2 fn makeDecision() -> DecisionTreeNode:
+3 return this

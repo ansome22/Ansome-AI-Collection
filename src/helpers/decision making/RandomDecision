@@ -1,0 +1,16 @@
+ class RandomDecision extends Decision:
+2 lastFrame: int = -1
+3 currentDecision: bool = false
+4
+5 fn testValue() -> bool:
+6 frame = getCurrentFrame()
+7
+8// Check if our stored decision is too old.
+9 if frame > lastFrame + 1:
+10// Make a new decision and store it.
+11 currentDecision = randomBoolean()
+12
+13// Either way we need to store when we were last called.
+14 lastFrame = frame
+15
+16 return currentDecision

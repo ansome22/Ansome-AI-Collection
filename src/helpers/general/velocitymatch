@@ -1,0 +1,24 @@
+
+1 class VelocityMatch:
+2 character: Kinematic
+3 target: Kinematic
+4
+5 maxAcceleration: f64
+6
+7// The time over which to achieve target speed.
+8 timeToTarget = 0.1
+9
+10 fn getSteering() -> SteeringOutput:
+11 result = new SteeringOutput()
+12
+13// Acceleration tries to get to the target velocity.
+14 result.linear = target.velocity - character.velocity
+15 result.linear /= timeToTarget
+16
+17// Check if the acceleration is too fast.
+18 if result.linear.length() > maxAcceleration:
+19 result.linear.normalize()
+20 result.linear *= maxAcceleration
+21
+22 result.angular = 0
+23 return result

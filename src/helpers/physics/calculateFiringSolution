@@ -1,0 +1,38 @@
+
+1 fn calculateFiringSolution(start: Vector,
+2 end: Vector,
+3 muzzleV: f64,
+4 gravity: Vector) -> Vector:
+5// Calculate the vector from the target back to the start.
+6 delta: Vector = start - end
+7
+8// Calculate the real-valued a,b,c coefficients of a
+9// conventional quadratic equation.
+10 a = gravity.squareMagnitude()
+11 b = -4 * (dotProduct(gravity, delta) + muzzleV * muzzleV)
+12 c = 4 * delta.squareMagnitude()
+13
+14// Check for no real solutions.
+15 b2minus4ac = b * b - 4 * a * c
+16 if b2minus4ac < 0:
+17 return null
+18
+19// Find the candidate times.
+20 time0 = sqrt((-b + sqrt(b2minus4ac)) / (2 * a))
+21 time1 = sqrt((-b - sqrt(b2minus4ac)) / (2 * a))
+22
+23// Find the time to target.
+24 if time0 < 0:
+25 if time1 < 0:
+26// We have no valid times.
+27 return null
+28 else:
+29 ttt = time1
+30 else:
+31 if time1 < 0:
+32 ttt = time0
+33 else:
+34 ttt = min(time0, time1)
+35
+36// Return the firing vector.
+37 return (delta * 2 - gravity * (ttt * ttt)) / (2 * muzzleV * ttt)

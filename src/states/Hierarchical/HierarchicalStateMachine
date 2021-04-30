@@ -1,0 +1,109 @@
+ class HierarchicalStateMachine extends HSMBase:
+// List of states at this level of the hierarchy.
+3 states: State
+4
+// The initial state for when the machine has no current state.
+6 initialState: State
+7
+// The current state of the machine.
+9 currentState: State = initialState
+10
+// Gets the current state stack.
+12 fn getStates() -> State[]:
+13 if currentState:
+14 return currentState.getStates()
+15 else:
+16 return []
+17
+// Recursively updates the machine.
+19 fn update() -> Action[]:
+20// If we’re in no state, use the initial state.
+21 if not currentState:
+22 currentState = initialState
+23 return currentState.getEntryActions()
+24
+// Try to find a transition in the current state.
+26 triggeredTransition = null
+27 for transition in currentState.getTransitions():
+28 if transition.isTriggered():
+29 triggeredTransition = transition
+30 break
+31
+// If we’ve found one, make a result structure for it.
+33 if triggeredTransition:
+34 result = new UpdateResult()
+35 result.actions = []
+36 result.transition = triggeredTransition
+37 result.level = triggeredTransition.getLevel()332 Chapter 5 Decision Making
+38
+// Otherwise recurse down for a result.
+40 else:
+41 result = currentState.update()
+42
+// Check if the result contains a transition.
+44 if result.transition:
+// Act based on its level.
+46 if result.level == 0:
+// Its on our level: honor it.
+48 targetState = result.transition.getTargetState()
+49 result.actions += currentState.getExitActions()
+50 result.actions += result.transition.getActions()
+51 result.actions += targetState.getEntryActions()
+52
+// Set our current state.
+54 currentState = targetState
+55
+// Add our normal action (we may be a state).
+57 result.actions += getActions()
+58
+// Clear the transition, so nobody else does it.
+60 result.transition = null
+61
+62 else if result.level > 0:
+// It’s destined for a higher level
+// Exit our current state.
+65 result.actions += currentState.getExitActions()
+66 currentState = null
+67
+// Decrease the number of levels to go.
+69 result.level -= 1
+70
+71 else:
+// It needs to be passed down.
+73 targetState = result.transition.getTargetState()
+74 targetMachine = targetState.parent
+75 result.actions += result.transition.getActions()
+76 result.actions += targetMachine.updateDown(
+77 targetState, -result.level)
+78
+// Clear the transition, so nobody else does it.
+80 result.transition = null
+81
+// If we didn’t get a transition.
+83 else:
+// We can simply do our normal action.5.3 State Machines 333
+85 result.action += getActions()
+86
+87 return result
+88
+// Recurses up the parent hierarchy, transitioning into each state
+// in turn for the given number of levels.
+91 fn updateDown(state: State, level: int) -> Action[]:
+// If we’re not at top level, continue recursing.
+93 if level > 0:
+// Pass ourself as the transition state to our parent.
+95 actions = parent.updateDown(this, level-1)
+96
+// Otherwise we have no actions to add to.
+98 else:
+99 actions = []
+100
+// If we have a current state, exit it.
+102 if currentState:
+103 actions += currentState.getExitActions()
+104
+// Move to the new state, and return all the actions.
+106 currentState = state
+107 actions += state.getEntryActions()
+108
+109 return actions

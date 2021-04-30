@@ -1,0 +1,33 @@
+
+1 class FollowPath extends Seek:
+2 path: Path
+3
+4// The distance along the path to generate the target. Can be
+5// negative if the character is moving in the reverse direction.
+6 pathOffset: f64
+7
+8// The current position on the path.
+9 currentParam: f64
+10
+11// The time in the future to predict the character’s position.
+12 predictTime: f64 = 0.1
+13
+14// ... Other data is derived from the superclass ...
+15
+16 fn getSteering() -> SteeringOutput:
+17// 1. Calculate the target to delegate to face.
+18// Find the predicted future location.
+19 futurePos = character.position +
+20 character.velocity * predictTime
+21
+22// Find the current position on the path.
+23 currentParam = path.getParam(futurePos, currentPos)
+24
+25// Offset it.
+26 targetParam = currentParam + pathOffset80 Chapter 3 Movement
+27
+28// Get the target position.
+29 target.position = path.getPosition(targetParam)
+30
+31// 2. Delegate to seek.
+32 return Seek.getSteering()

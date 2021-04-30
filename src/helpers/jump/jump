@@ -1,0 +1,60 @@
+ class Jump extends VelocityMatch:
+2// The jump point to use.
+3 jumpPoint: JumpPoint
+4
+5// Keeps track of whether the jump is possible.
+6 canAchieve: bool = false
+7
+8// The movement capability of the character.
+9 maxSpeed: f64
+10 maxTakeoffYSpeed: f64
+11
+12// Retrieve the steering to make this jump.
+13 fn getSteering() -> SteeringOutput:
+14// Ensure we have a velocity we want to achieve.
+15 if not target: calculateTarget()
+16 if not canAchieve: return null
+17
+18// Check if we’ve hit the jump point. (NB: ’character’
+19// is inherited from the VelocityMatch base class)
+20 if character.position.near(target.position) and
+21 character.velocity.near(target.velocity):
+22// Perform the jump, and return no steering
+23// (we’ll be airborne, no need to steer).
+24 scheduleJumpAction()
+25 return null
+26
+27// Delegate the steering to get top the takeoff location.
+28 return VelocityMatch.getSteering()
+29
+30// Work out the trajectory calculation.
+31 fn calculateTarget():
+32 target = new Kinematic()
+33 target.position = jumpPoint.takeoffLocation
+34
+35 jumpVector = jumpPoint.landingLocation -
+36 jumpPoint.takeoffLocation
+37
+38// Calculate the first jump time, and check if we can use it.
+39 sqrtTerm = sqrt(2 * gravity.y * jumpVector.y +
+40 maxTakeoffYSpeed * maxTakeoffYSpeed)
+41 time: f64 = (maxTakeoffYSpeed - sqrtTerm) / gravity.y
+42 checkCanAchieveJumpTime(jumpVector, time)
+43 if not canAchieve:
+44// Otherwise try the other square root.
+45 time = (maxTakeoffYSpeed + sqrtTerm) / gravity.y
+46 checkCanAchieveJumpTime(jumpVector, time)3.6 Jumping 141
+47
+48// Check whether a jump taking the given time is achievable.
+49 fn checkJumpTime(jumpVector: Vector, time: f64):
+50// Calculate the planar speed.
+51 vx = jumpVector.x / time
+52 vz = jumpVector.z / time
+53 speedSq = vx * vx + vz * vz
+54
+55// Check it.
+56 if speedSq < maxSpeed * maxSpeed:
+57// We have a valid solution, so store it.
+58 target.velocity.x = vx
+59 target.velocity.z = vz
+60 canAchieve = true

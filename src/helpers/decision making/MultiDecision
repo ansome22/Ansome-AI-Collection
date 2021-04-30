@@ -1,0 +1,13 @@
+ class MultiDecision extends DecisionTreeNode:
+2 daughterNodes: DecisionTreeNode[]
+3
+4 fn testValue() -> int
+5
+6// Carries out the test and returns the node to follow.
+7 fn getBranch() -> DecisionTreeNode:
+8 return daughterNodes[testValue()]
+9
+10// Recursively runs the algorithm, exactly as before.
+11 fn makeDecision() -> DecisionTreeNode:
+12 branch: DecisionTreeNode = getBranch()
+13 return branch.makeDecision()

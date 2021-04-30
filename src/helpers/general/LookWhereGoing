@@ -1,0 +1,19 @@
+
+1 class LookWhereYoureGoing extends Align:
+2// No need for an overridden target member, we have
+3// no explicit target to set.
+4
+5// ... Other data is derived from the superclass ...
+6
+7 fn getSteering() -> SteeringOutput:
+8// 1. Calculate the target to delegate to align
+9// Check for a zero direction, and make no change if so.
+10 velocity: Vector = character.velocity
+11 if velocity.length() == 0:
+12 return null
+13
+14// Otherwise set the target based on the velocity.
+15 target.orientation = atan2(-velocity.x, velocity.z)
+16
+17// 2. Delegate to align.
+18 return Align.getSteering()

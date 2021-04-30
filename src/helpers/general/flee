@@ -1,0 +1,2 @@
+// Get the direction to the target.
+2 steering.linear = character.position - target.position

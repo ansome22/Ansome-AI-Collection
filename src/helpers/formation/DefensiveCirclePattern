@@ -1,0 +1,56 @@
+ class DefensiveCirclePattern:
+2// The radius of one character, this is needed to determine how
+3// close we can pack a given number of characters around a circle.
+4 characterRadius: f64
+5
+6// Calculate the number of slots in the pattern from the assignment
+7// data. This is not part of the formation pattern interface.
+8 fn calculateNumberOfSlots(assignments) -> int:
+9// Find the number of filled slots: it will be the
+10// highest slot number in the assignments.3.7 Coordinated Movement 155
+11 filledSlots: int = 0
+12 for assignment in assignments:
+13 if assignment.slotNumber >= maxSlotNumber:
+14 filledSlots = assignment.slotNumber
+15
+16// Add one to go from the index of the highest slot to
+17// the number of slots needed.
+18 return filledSlots + 1
+19
+20// Calculate the drift offset (average position) of the pattern.
+21 fn getDriftOffset(assignments) -> Static:
+22// Add each assignment’s contribution to the result.
+23 result = new Static()
+24 for assignment in assignments:
+25 location = getSlotLocation(assignment.slotNumber)
+26 result.position += location.position
+27 result.orientation += location.orientation
+28
+29// Divide through to get the drift offset.
+30 numberOfAssignments = assignments.length()
+31 result.position /= numberOfAssignments
+32 result.orientation /= numberOfAssignments
+33 return result
+34
+35// Calculate the position of a slot.
+36 fn getSlotLocation(slotNumber: int) -> Static:
+37// Place the slots around a circle based on their slot number.
+38 angleAroundCircle = slotNumber / numberOfSlots * pi * 2
+39
+40// The radius depends on the radius of the character, and the
+41// number of characters in the circle: we want there to be no
+42// gap between characters’ shoulders.
+43 radius = characterRadius / sin(pi / numberOfSlots)
+44
+45 result = new Static()
+46 result.position.x = radius * cos(angleAroundCircle)
+47 result.position.z = radius * sin(angleAroundCircle)
+48
+49// Characters face out.
+50 result.orientation = angleAroundCircle
+51
+52 return result
+53
+54// We support any number of slots.
+55 fn supportsSlots(slotCount) -> bool:
+56 return true

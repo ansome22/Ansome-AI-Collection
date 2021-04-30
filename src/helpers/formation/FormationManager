@@ -1,0 +1,142 @@
+ class FormationManager:
+2// The assignment characters to slots.
+3 class SlotAssignment:
+4 character: Character
+5 slotNumber: int
+6 slotAssignments: SlotAssignment[]
+7
+8// A Static (i.e., position and orientation) representing the
+9// drift offset for the currently filled slots.
+10 driftOffset: Static
+11
+12// The formation pattern.
+13 pattern: FormationPattern
+14
+15// Update the assignment of characters to slots.
+16 fn updateSlotAssignments():
+17// A trivial assignment algorithm: we simply go through
+18// each character and assign sequential slot numbers.
+19 for i in 0..slotAssignments.length():
+20 slotAssignments[i].slotNumber = i
+21
+22// Update the drift offset.
+23 driftOffset = pattern.getDriftOffset(slotAssignments)
+24
+25// Add a new character. Return false if no slots are available.
+26 fn addCharacter(character: Character) -> bool:152 Chapter 3 Movement
+27// Check if the pattern supports more slots.
+28 occupiedSlots = slotAssignments.length()
+29 if pattern.supportsSlots(occupiedSlots + 1):
+30// Add a new slot assignment.
+31 slotAssignment = new SlotAssignment()
+32 slotAssignment.character = character
+33 slotAssignments.append(slotAssignment)
+34 updateSlotAssignments()
+35 return true
+36 else:
+37// Otherwise we’ve failed to add the character.
+38 return false
+39
+40// Remove a character from its slot.
+41 fn removeCharacter(character: Character):
+42 slot = charactersInSlots.findIndexOfCharacter(character)
+43 slotAssignments.removeAt(slot)
+44 updateSlotAssignments()
+45
+46// Send new target locations to each character.
+47 fn updateSlots():
+48// Find the anchor point.
+49 anchor: Static = getAnchorPoint()
+50 orientationMatrix: Matrix = anchor.orientation.asMatrix()
+51
+52// Go through each character in turn.
+53 for i in 0..slotAssignments.length():
+54 slotNumber: int = slotAssignments[i].slotNumber
+55 slot: Static = pattern.getSlotLocation(slotNumber)
+56
+57// Transform by the anchor point position and orientation.
+58 location = new Static()
+59 location.position = anchor.position +
+60 orientationMatrix * slot.position
+61 location.orientation = anchor.orientation +
+62 slot.orientation
+63
+64// And add the drift component.
+65 location.position -= driftOffset.position
+66 location.orientation -= driftOffset.orientation
+67
+68// Send the static to the character.
+69 slotAssignments[i].character.setTarget(location)
+70
+71// The characteristic point of this formation (see below).
+72 fn getAnchorPoint() -> Static
+
+
+4
+5 fn updateSlotAssignments():
+6// A slot and its corresponding cost.
+7 class CostAndSlot:
+8 cost: f64
+9 slot: int
+10
+11// A character’s ease of assignment and its list of slots.
+12 class CharacterAndSlots:
+13 character: Character
+14 assignmentEase: f64
+15 costAndSlots: CostAndSlot[]
+16
+17 characterData: CharacterAndSlots[]
+18
+19// Compile the character data.
+20 for assignment in slotAssignments:
+21 datum = new CharacterAndSlots()
+22 datum.character = assignment.character
+23
+24// Add each valid slot to it.
+25 for slot in 0..pattern.numberOfSlots:
+26 cost: f64 = pattern.getSlotCost(assignment.character)
+27 if cost >= LIMIT: continue
+28
+29 slotDatum = new CostAndSlot()
+30 slotDatum.slot = slot
+31 slotDatum.cost = cost
+32 datum.costAndSlots += slotDatum
+333.7 Coordinated Movement 163
+34// Add this slot to the character’s ease of assignment.
+35 datum.assignmentEase += 1 / (1 + cost)
+36
+37 datum.costAndSlots.sortByCost()
+38 characterData += datum
+39
+40// Arrange characters in order of ease of assignment,
+41// with the least easy first.
+42 characterData.sortByAssignmentEase()
+43
+44// Keep track of which slots we have filled. Initially all
+45// values in this array should be false.
+46 filledSlots = new bool[pattern.numberOfSlots]
+47
+48// Make assignments.
+49 slotAssignments = []
+50 for characterDatum in characterData:
+51// Choose the first slot in the list that is still open.
+52 for slot in characterDatum.costAndSlots:
+53 if not filledSlots[slot]:
+54 assignment = new SlotAssignment()
+55 assignment.character = characterDatum.character
+56 assignment.slotNumber = slot
+57 slotAssignments.append(assignment)
+58
+59// Reserve the slot.
+60 filledSlots[slot] = true
+61
+62// Go to the next character.
+63 break continue
+64
+65// If we reach here, it is because a character has no
+66// valid assignment. Some sensible action should be
+67// taken, such as reporting to the player.
+68 throw new Error()
+
+// Get the location of the given slot index at a given time.
+6 fn getSlotLocation(slotNumber: int, time: f64) -> Static

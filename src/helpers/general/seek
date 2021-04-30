@@ -1,0 +1,23 @@
+class KinematicSeek:
+    2 character: Static
+    3 target: Static
+    4
+    5 maxSpeed: f64
+    6
+    7 fn getSteering() -> KinematicSteeringOutput:
+    8 result = new KinematicSteeringOutput()
+    9
+    10// Get the direction to the target.
+    11 result.velocity = target.position - character.position
+    12
+    13// The velocity is along this direction, at full speed.
+    14 result.velocity.normalize()
+    15 result.velocity *= maxSpeed
+    16
+    17// Face in the direction we want to move.
+    18 character.orientation = newOrientation(
+    19 character.orientation,
+    20 result.velocity)
+    21
+    22 result.rotation = 0
+    23 return result

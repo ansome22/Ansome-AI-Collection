@@ -1,0 +1,39 @@
+ class Pursue extends Seek:
+2// The maximum prediction time.
+3 maxPrediction: f64
+4
+5// OVERRIDES the target data in seek (in other words this class has
+6// two bits of data called target: Seek.target is the superclass
+7// target which will be automatically calculated and shouldn’t be
+8// set, and Pursue.target is the target we’re pursuing).
+9 target: Kinematic
+10
+11// ... Other data is derived from the superclass ...
+12
+13 fn getSteering() -> SteeringOutput:
+14// 1. Calculate the target to delegate to seek
+15// Work out the distance to target.
+16 direction = target.position - character.position
+17 distance = direction.length()
+18
+19// Work out our current speed.
+20 speed = character.velocity.length()
+21
+22// Check if speed gives a reasonable prediction time.
+23 if speed <= distance / maxPrediction:
+24 prediction = maxPrediction
+25
+Pursue 
+route 
+Seek route 
+Chasing character 3.3 Steering Behaviors 71
+26// Otherwise calculate the prediction time.
+27 else:
+28 prediction = distance / speed
+29
+30// Put the target together.
+31 Seek.target = explicitTarget
+32 Seek.target.position += target.velocity * prediction
+33
+34// 2. Delegate to seek.
+35 return Seek.getSteering()

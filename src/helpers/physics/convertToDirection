@@ -1,0 +1,11 @@
+ fn convertToDirection(deltaPosition: Vector, angle: f64):
+2// Find the planar direction.
+3 direction = deltaPosition
+4 direction.y = 0
+5 direction.normalize()
+6
+7// Add in the vertical component.
+8 direction *= cos(angle)
+9 direction.y = sin(angle)
+10
+11 return direction

@@ -1,0 +1,11 @@
+ class f64Decision extends Decision:
+2 minValue: f64
+3 maxValue: f64
+4
+5 fn testValue() -> f64
+6
+7 fn getBranch() -> DecisionTreeNode:
+8 if maxValue >= testValue() >= minValue:
+9 return trueNode
+10 else:
+11 return falseNode
